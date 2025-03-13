@@ -59,6 +59,8 @@ func (svc *Service) CreateTask(ctx *fiber.Ctx, task *models.TaskRequest) (int, e
 		if !isValidTaskStatus(*task.Status) {
 			return -1, ErrInvalidTaskStatus
 		}
+	} else {
+		task.Status = &models.StatusNew
 	}
 	id, err := svc.s.CreateTask(ctx.Context(), task)
 	if err != nil {
