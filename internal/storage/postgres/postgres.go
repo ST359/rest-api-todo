@@ -95,7 +95,7 @@ func (s *Storage) DeleteTask(ctx context.Context, id int) error {
 	}
 	return nil
 }
-func (s *Storage) GetAllTasks(ctx context.Context, id int) ([]*models.Task, error) {
+func (s *Storage) GetAllTasks(ctx context.Context) ([]*models.Task, error) {
 	const op = "storage.postgres.GetAllTasks"
 
 	query := `SELECT * FROM tasks`
