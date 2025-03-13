@@ -1,21 +1,24 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/ST359/rest-api-todo/internal/api"
+)
 
 func main() {
-	app := fiber.New()
-
-	app.Get("/tasks", func(c *fiber.Ctx) error {
-		return c.SendString("tasks")
-	})
-	app.Post("/tasks", func(c *fiber.Ctx) error {
-		return c.SendString("post task")
-	})
-	app.Put("/tasks/:id", func(c *fiber.Ctx) error {
-		return c.SendString(c.Params("id"))
-	})
-	app.Delete("/tasks/:id", func(c *fiber.Ctx) error {
-		return c.SendString(c.Params("id"))
-	})
-	app.Listen(":3000")
+	api, err := api.New()
+	if err != nil {
+		panic(err)
+	}
+	go api.Run()
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	_ = <-c
+	fmt.Println("Gracefully shutiing down")
+	_ = api.Shutdown()
+	fmt.Println("Shut down succesfully")
 }
