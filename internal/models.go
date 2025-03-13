@@ -21,5 +21,5 @@ type Task struct {
 	UpdatedAt   time.Time `json:"updatedAt" db:"updated_at"`
 }
 type AllTasksResponce struct {
-	Tasks []Task `json:"tasks"`
+	Tasks []*Task `json:"tasks"`
 }

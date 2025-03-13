@@ -66,11 +66,12 @@ func (s *Storage) CreateTask(ctx context.Context, task models.Task) (int, error)
 	}
 	return id, nil
 }
-func (s *Storage) UpdateTask(ctx context.Context, task models.Task) error {
+func (s *Storage) UpdateTask(ctx context.Context, task models.Task, id int) error {
 	const op = "storage.postgres.UpdateTask"
 
-	query := `UPDATE tasks SET title = COALESCE(@title, title), description = COALESCE(@description, description), status = COALESCE(@status, status), updated_at = @updatedAt`
+	query := `UPDATE tasks SET title = COALESCE(@title, title), description = COALESCE(@description, description), status = COALESCE(@status, status), updated_at = @updatedAt WHERE id = @id`
 	args := pgx.NamedArgs{
+		"id":          id,
 		"title":       task.Title,
 		"description": task.Description,
 		"status":      task.Status,
@@ -78,6 +79,9 @@ func (s *Storage) UpdateTask(ctx context.Context, task models.Task) error {
 	}
 	_, err := s.db.Exec(ctx, query, args)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return storage.ErrCantFindTask
+		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil

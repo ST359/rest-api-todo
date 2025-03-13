@@ -12,7 +12,7 @@ type Storage interface {
 	GetTask(ctx context.Context, id int) (*models.Task, error)
 	GetAllTasks(ctx context.Context) ([]*models.Task, error)
 	CreateTask(ctx context.Context, task models.Task) (int, error)
-	UpdateTask(ctx context.Context, task models.Task) error
+	UpdateTask(ctx context.Context, task models.Task, id int) error
 	DeleteTask(ctx context.Context, id int) error
 }
 type Service struct {
@@ -53,10 +53,10 @@ func (svc *Service) CreateTask(ctx *fiber.Ctx, task models.Task) (int, error) {
 	return id, nil
 }
 
-func (svc *Service) UpdateTask(ctx *fiber.Ctx, task models.Task) error {
+func (svc *Service) UpdateTask(ctx *fiber.Ctx, task models.Task, id int) error {
 	const op = "api.UpdateTask"
 
-	err := svc.s.UpdateTask(ctx.Context(), task)
+	err := svc.s.UpdateTask(ctx.Context(), task, id)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
