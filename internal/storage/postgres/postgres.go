@@ -15,6 +15,9 @@ type Storage struct {
 	db *pgxpool.Pool
 }
 
+func (s *Storage) Close() {
+	s.db.Close()
+}
 func New(dbURL string) (*Storage, error) {
 	const op = "storage.postgres.New"
 
