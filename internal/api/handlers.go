@@ -3,7 +3,6 @@ package api
 import (
 	"errors"
 	"log/slog"
-	"time"
 
 	models "github.com/ST359/rest-api-todo/internal"
 	"github.com/ST359/rest-api-todo/internal/service"
@@ -11,10 +10,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-var InvalidRequestBody = fiber.Map{"Error": "Unable to parse request body"}
-var InternalServerError = fiber.Map{"Error": "Internal server error"}
-var NoTitleProvided = fiber.Map{"Error": "Task title must be provided"}
-var WrongTaskId = fiber.Map{"Error": "Can not find task with provided id"}
+var (
+	InvalidRequestBody  = fiber.Map{"Error": "Unable to parse request body"}
+	InternalServerError = fiber.Map{"Error": "Internal server error"}
+	NoTitleProvided     = fiber.Map{"Error": "Task title must be provided"}
+	WrongTaskId         = fiber.Map{"Error": "Can not find task with provided id"}
+	InvalidTaskStatus   = fiber.Map{"Error": "Task status is invalid, use 'new', 'in_progress' or 'done'"}
+)
 
 type Handler struct {
 	svc    *service.Service
@@ -26,8 +28,8 @@ func NewHandler(svc *service.Service, logger *slog.Logger) *Handler {
 }
 
 func (h *Handler) CreateTask(ctx *fiber.Ctx) error {
-	var taskToCreate models.Task
-	err := ctx.BodyParser(taskToCreate)
+	var taskToCreate *models.TaskRequest
+	err := ctx.BodyParser(&taskToCreate)
 	if err != nil {
 		if errors.Is(err, fiber.ErrUnprocessableEntity) {
 			h.logger.Debug(err.Error())
@@ -35,11 +37,17 @@ func (h *Handler) CreateTask(ctx *fiber.Ctx) error {
 		}
 		h.logger.Error(err.Error())
 	}
-	if taskToCreate.Title == "" {
+	if taskToCreate == nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(InternalServerError)
+	}
+	if taskToCreate.Title == nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(NoTitleProvided)
 	}
 	id, err := h.svc.CreateTask(ctx, taskToCreate)
 	if err != nil {
+		if errors.Is(err, service.ErrInvalidTaskStatus) {
+			return ctx.Status(fiber.StatusBadRequest).JSON(InvalidTaskStatus)
+		}
 		h.logger.Error(err.Error())
 		return ctx.Status(fiber.StatusInternalServerError).JSON(InternalServerError)
 	}
@@ -47,20 +55,25 @@ func (h *Handler) CreateTask(ctx *fiber.Ctx) error {
 }
 
 func (h *Handler) UpdateTask(ctx *fiber.Ctx) error {
-	var taskToUpdate models.Task
+	var taskToUpdate *models.TaskRequest
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
 		h.logger.Debug(err.Error())
 		return ctx.Status(fiber.StatusBadRequest).JSON(WrongTaskId)
 	}
-	err = ctx.BodyParser(taskToUpdate)
+	err = ctx.BodyParser(&taskToUpdate)
 	if err != nil {
 		h.logger.Debug(err.Error())
 		return ctx.Status(fiber.StatusBadRequest).JSON(InvalidRequestBody)
 	}
-	taskToUpdate.UpdatedAt = time.Now()
+	if taskToUpdate == nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(InternalServerError)
+	}
 	err = h.svc.UpdateTask(ctx, taskToUpdate, id)
 	if err != nil {
+		if errors.Is(err, service.ErrInvalidTaskStatus) {
+			return ctx.Status(fiber.StatusBadRequest).JSON(InvalidTaskStatus)
+		}
 		if errors.Is(err, storage.ErrCantFindTask) {
 			return ctx.Status(fiber.StatusNotFound).JSON(WrongTaskId)
 		}

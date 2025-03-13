@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	models "github.com/ST359/rest-api-todo/internal"
+	"github.com/ST359/rest-api-todo/internal/config"
 	"github.com/ST359/rest-api-todo/internal/storage"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,10 +19,12 @@ type Storage struct {
 func (s *Storage) Close() {
 	s.db.Close()
 }
-func New(dbURL string) (*Storage, error) {
+func New(cfg *config.Config) (*Storage, error) {
 	const op = "storage.postgres.New"
 
-	db, err := pgxpool.New(context.Background(), dbURL)
+	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		cfg.DbHost, cfg.DbPort, cfg.DbUser, cfg.DbPassword, cfg.DbName)
+	db, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -48,7 +51,7 @@ func (s *Storage) GetTask(ctx context.Context, id int) (*models.Task, error) {
 	}
 	return &task, nil
 }
-func (s *Storage) CreateTask(ctx context.Context, task models.Task) (int, error) {
+func (s *Storage) CreateTask(ctx context.Context, task *models.TaskRequest) (int, error) {
 	const op = "storage.postgres.CreateTask"
 
 	var id int
@@ -69,7 +72,7 @@ func (s *Storage) CreateTask(ctx context.Context, task models.Task) (int, error)
 	}
 	return id, nil
 }
-func (s *Storage) UpdateTask(ctx context.Context, task models.Task, id int) error {
+func (s *Storage) UpdateTask(ctx context.Context, task *models.TaskRequest, id int) error {
 	const op = "storage.postgres.UpdateTask"
 
 	query := `UPDATE tasks SET title = COALESCE(@title, title), description = COALESCE(@description, description), status = COALESCE(@status, status), updated_at = @updatedAt WHERE id = @id`

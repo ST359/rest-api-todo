@@ -22,7 +22,7 @@ func New() (*Api, error) {
 	logger := slog.New(slog.Default().Handler())
 	cfg := config.MustLoad()
 
-	storage, err := postgres.New(cfg.DbURL)
+	storage, err := postgres.New(cfg)
 	if err != nil {
 		logger.Error(err.Error())
 		return nil, err

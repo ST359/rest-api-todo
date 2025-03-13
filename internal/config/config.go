@@ -7,8 +7,12 @@ import (
 )
 
 type Config struct {
-	DbURL string `env:"DATABASE_URL"`
-	Port  int    `env:"SERVER_PORT"`
+	DbHost     string `env:"DATABASE_HOST"`
+	DbPort     int    `env:"DATABASE_PORT"`
+	DbUser     string `env:"DATABASE_USER"`
+	DbPassword string `env:"DATABASE_PASSWORD"`
+	DbName     string `env:"DATABASE_NAME"`
+	Port       int    `env:"SERVER_PORT"`
 }
 
 func MustLoad() *Config {
