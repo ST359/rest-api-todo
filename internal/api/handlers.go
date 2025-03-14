@@ -70,6 +70,12 @@ func (h *Handler) UpdateTask(ctx *fiber.Ctx) error {
 		h.logger.Debug(err.Error())
 		return ctx.Status(fiber.StatusBadRequest).JSON(WrongTaskId)
 	}
+	//Check if task exists
+	if _, err = h.svc.GetTask(ctx, id); err != nil {
+		if errors.Is(err, storage.ErrCantFindTask) {
+			return ctx.Status(fiber.StatusBadRequest).JSON(WrongTaskId)
+		}
+	}
 	err = ctx.BodyParser(&taskToUpdate)
 	if err != nil {
 		h.logger.Debug(err.Error())
@@ -99,12 +105,19 @@ func (h *Handler) DeleteTask(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(WrongTaskId)
 	}
+	//Check if task exists
+	if _, err = h.svc.GetTask(ctx, id); err != nil {
+		if errors.Is(err, storage.ErrCantFindTask) {
+			return ctx.Status(fiber.StatusBadRequest).JSON(WrongTaskId)
+		}
+	}
 	err = h.svc.DeleteTask(ctx, id)
 	if err != nil {
 		if errors.Is(err, storage.ErrCantFindTask) {
 			return ctx.Status(fiber.StatusBadRequest).JSON(WrongTaskId)
 		}
 		h.logger.Error(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).JSON(InternalServerError)
 	}
 	return ctx.SendStatus(fiber.StatusOK)
 }
