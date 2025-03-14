@@ -23,10 +23,15 @@ type Handler struct {
 	logger *slog.Logger
 }
 
+// NewHandler() creates and return a *Handler with provided *Service and *Logger
 func NewHandler(svc *service.Service, logger *slog.Logger) *Handler {
 	return &Handler{svc, logger}
 }
 
+// CreateTask() parses request body from *fiber.Ctx to aquire task
+// and send it to service layer;
+//
+// Responds with created task ID in case of success
 func (h *Handler) CreateTask(ctx *fiber.Ctx) error {
 	var taskToCreate *models.TaskRequest
 	err := ctx.BodyParser(&taskToCreate)
@@ -54,6 +59,10 @@ func (h *Handler) CreateTask(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"id": id})
 }
 
+// UpdateTask() parses request body from *fiber.Ctx to get task
+// and :id param to get task id and send it to service layer;
+//
+// Responds with 200 OK in case of success
 func (h *Handler) UpdateTask(ctx *fiber.Ctx) error {
 	var taskToUpdate *models.TaskRequest
 	id, err := ctx.ParamsInt("id")
@@ -81,6 +90,10 @@ func (h *Handler) UpdateTask(ctx *fiber.Ctx) error {
 	}
 	return ctx.SendStatus(fiber.StatusOK)
 }
+
+// DeleteTask() parses :id param to get task id and send it to service layer;
+//
+// Responds with 200 OK in case of success
 func (h *Handler) DeleteTask(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
@@ -95,6 +108,10 @@ func (h *Handler) DeleteTask(ctx *fiber.Ctx) error {
 	}
 	return ctx.SendStatus(fiber.StatusOK)
 }
+
+// GetTask() parses :id param to get task id and send it to service layer;
+//
+// Responds with task in case of success
 func (h *Handler) GetTask(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
@@ -109,6 +126,9 @@ func (h *Handler) GetTask(ctx *fiber.Ctx) error {
 	}
 	return ctx.Status(fiber.StatusOK).JSON(task)
 }
+
+// GetTask() responds with tasks list, if there is no tasks
+// response "tasks" field is null
 func (h *Handler) GetAllTasks(ctx *fiber.Ctx) error {
 	tasks, err := h.svc.GetAllTasks(ctx)
 	if err != nil {

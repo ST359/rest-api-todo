@@ -39,9 +39,9 @@ Sample TODO backend service with REST API, created with Fiber, Postgres and pgx
     "status": "in_progress"
 }
 ```
-`GET /tasks` returns a list of all existing tasks
-`GET /tasks/:id` returns a task where task id=id
-`DELETE /tasks/:id` deletes existing tasks where task id=id
+`GET /tasks` returns a list of all existing tasks  
+`GET /tasks/:id` returns a task where task id=id  
+`DELETE /tasks/:id` deletes existing tasks where task id=id  
 
 ## Запуск
 Для запуска требуется Docker и Docker-compose
@@ -70,6 +70,6 @@ docker-compose up --build
     "status": "in_progress"
 }
 ```
-`GET /tasks` возвращает список всех существующих задач
-`GET /tasks/:id` возвращает задачу с указанным ID
-`DELETE /tasks/:id` удаляет задачу с указанным ID
+`GET /tasks` возвращает список всех существующих задач  
+`GET /tasks/:id` возвращает задачу с указанным ID  
+`DELETE /tasks/:id` удаляет задачу с указанным ID  

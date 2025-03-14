@@ -19,6 +19,10 @@ type Storage struct {
 func (s *Storage) Close() {
 	s.db.Close()
 }
+
+// New() return a new *Storage;
+//
+// It uses config in a form of "host=x port=x user=x..."
 func New(cfg *config.Config) (*Storage, error) {
 	const op = "storage.postgres.New"
 
@@ -51,6 +55,8 @@ func (s *Storage) GetTask(ctx context.Context, id int) (*models.Task, error) {
 	}
 	return &task, nil
 }
+
+// CreateTask() adds a record to the database, fields CreatedAt and UpdatedAt are set in service layer for consistency
 func (s *Storage) CreateTask(ctx context.Context, task *models.TaskRequest) (int, error) {
 	const op = "storage.postgres.CreateTask"
 
@@ -72,6 +78,8 @@ func (s *Storage) CreateTask(ctx context.Context, task *models.TaskRequest) (int
 	}
 	return id, nil
 }
+
+// CreateTask() adds a record to the database, field UpdatedAt is set in service layer for consistency
 func (s *Storage) UpdateTask(ctx context.Context, task *models.TaskRequest, id int) error {
 	const op = "storage.postgres.UpdateTask"
 

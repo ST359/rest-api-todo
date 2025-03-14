@@ -18,6 +18,8 @@ type Api struct {
 	logger  *slog.Logger
 }
 
+// New() returns a service to run.
+// It sets up logger, loads config, inits storage, handlers and routes
 func New() (*Api, error) {
 	logger := slog.New(slog.Default().Handler())
 	cfg := config.MustLoad()
@@ -36,16 +38,22 @@ func New() (*Api, error) {
 
 	return &Api{app, storage, cfg.Port, logger}, nil
 }
+
+// Run() starts fiber's Listen() with port loaded by config
 func (a *Api) Run() {
 	if err := a.app.Listen(fmt.Sprintf(":%d", a.port)); err != nil {
 		a.logger.Error(err.Error())
 		panic(err)
 	}
 }
+
+// Shutdown() closes storage connetion and returns fiber's Shutdown()
+// to be able to wait for return of fiber's Shutdown()
 func (a *Api) Shutdown() error {
 	a.storage.Close()
 	return a.app.Shutdown()
 }
+
 func setupRoutes(app *fiber.App, handler *Handler) {
 	app.Get("/tasks", handler.GetAllTasks)
 	app.Get("/tasks/:id", handler.GetTask)

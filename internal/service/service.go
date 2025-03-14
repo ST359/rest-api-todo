@@ -51,6 +51,9 @@ func (svc *Service) GetAllTasks(ctx *fiber.Ctx) ([]*models.Task, error) {
 	return tasks, nil
 }
 
+// CreateTask() sets up CreatedAt and UpdatedAt times for consistency;
+//
+// Returns an ID of created task
 func (svc *Service) CreateTask(ctx *fiber.Ctx, task *models.TaskRequest) (int, error) {
 	const op = "service.CreateTask"
 
@@ -69,6 +72,7 @@ func (svc *Service) CreateTask(ctx *fiber.Ctx, task *models.TaskRequest) (int, e
 	return id, nil
 }
 
+// CreateTask() sets up UpdatedAt time for consistency;
 func (svc *Service) UpdateTask(ctx *fiber.Ctx, task *models.TaskRequest, id int) error {
 	const op = "service.UpdateTask"
 
