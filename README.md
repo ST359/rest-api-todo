@@ -9,8 +9,8 @@
   - [Примеры запросов](#Примеры_запросов)
 
 ## Screenshots
-[Example of task creation](assets/postman_screenhot_1.jpg "Example of task creation")
-[Example of getting all tasks list](assets/postman_screenhot_2.jpg "Example of getting all tasks list")
+![Example of task creation](assets/postman_screenhot_1.jpg "Example of task creation")
+![Example of getting all tasks list](assets/postman_screenhot_2.jpg "Example of getting all tasks list")
 
 ## Running
 To run the service, Docker and Docker Compose are required.
